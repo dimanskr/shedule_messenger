@@ -1,0 +1,15 @@
+<header class="d-flex flex-wrap align-items-center justify-content-md-between py-3 mb-4 border-bottom">
+    <div class="col-md-3 mb-2 mb-md-0 ms-2">
+        <h5 class="my-0 mr-md-auto font-weight-normal">Shedule messenger</h5>
+    </div>
+    <div class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+        <nav class="ms-5">
+            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:client_list'%}">Список клиентов</a>
+            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:message_list'%}">Список сообщений</a>
+            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list'%}">Список рассылок</a>
+            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_attempt_list'%}">Лог рассылок</a>
+        </nav>
+    </div>
+    <div class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
+    </div>
+</header>
