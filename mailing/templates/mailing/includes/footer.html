@@ -1,0 +1,16 @@
+{% load mailing_tags %}
+<div class="row">
+    <div class="col-12 col-md">
+        Shedule messenger
+        <small class="d-block mb-3 text-muted">&copy; {% current_time %}</small>
+    </div>
+    <div class="col-6 col-md">
+        <h5>О нас</h5>
+        <ul class="list-unstyled text-small">
+            <li><a class="text-muted" href="{% url 'mailing:client_list'%}">Список клиентов</a></li>
+            <li><a class="text-muted" href="{% url 'mailing:message_list'%}">Список сообщений</a></li>
+            <li><a class="text-muted" href="{% url 'mailing:mailing_list'%}">Список рассылок</a></li>
+            <li><a class="text-muted" href="{% url 'mailing:mailing_attempt_list'%}">Лог рассылок</a></li>
+        </ul>
+    </div>
+</div>

@@ -1,0 +1,35 @@
+{% extends 'mailing/base.html' %}
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    <h1 class="display-4">Лог рассылок</h1>
+</div>
+{% if attempt_list %}
+<div class="table-responsive">
+    <table class="table table-striped table-bordered">
+        <thead class="thead-dark">
+            <tr>
+                <th>Рассылки</th>
+                <th>Дата и время отправки</th>
+                <th>Статус</th>
+                <th>Ответ сервера</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for mailing_attempt in attempt_list %}
+            <tr>
+                <td>{{ mailing_attempt.mailing }}</td>
+                <td>{{ mailing_attempt.last_attempt | date:"d.m.Y H:i" }}</td>
+                <td>{{ mailing_attempt.get_status_display }}</td>
+                <td>{{ mailing_attempt.server_response }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% else %}
+<div class="alert alert-info text-center" role="alert">
+    Пока нет записей в логе рассылок.
+</div>
+{% endif %}
+{% include "mailing/includes/paginator.html" %}
+{% endblock %}

@@ -1,0 +1,35 @@
+{% extends 'mailing/base.html' %}
+{% load django_bootstrap5 %}
+{% block content %}
+<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+    {% if object %}
+    <h1 class="display-4">Редактирование сообщения</h1>
+    {% else %}
+    <h1 class="display-4">Создание сообщения</h1>
+    {% endif %}
+</div>
+<div class="row d-flex justify-content-center">
+    <div class="col-6">
+        <form class="row" method="post" enctype="multipart/form-data">
+            <div class="col-6">
+                <div class="card">
+
+                    <div class="card-body">
+                        {% csrf_token %}
+                        {% bootstrap_form form %}
+                        <button type="submit" class="btn btn-success">
+                            {% if object %}
+                            Сохранить
+                            {% else %}
+                            Создать
+                            {% endif %}
+                        </button>
+                        <a class="btn btn-primary" href="{% url 'mailing:message_list' %}"
+                           role="button">Отмена</a>
+                    </div>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+{% endblock %}
