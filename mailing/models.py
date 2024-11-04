@@ -2,13 +2,22 @@ from django.utils import timezone
 
 from django.db import models
 
+from users.models import User
+
 NULLABLE = {"blank": True, "null": True}
 
 
 class Client(models.Model):
-    email = models.EmailField(verbose_name='Email клиента', unique=True)
+    email = models.EmailField(verbose_name='Email клиента')
     full_name = models.CharField(max_length=255, verbose_name='Полное имя', help_text='Введите полное имя')
     comment = models.TextField(verbose_name='Комментарий', help_text='Введите комментарий', **NULLABLE)
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='author_clients',
+        verbose_name="Автор",
+        **NULLABLE,
+    )
 
     class Meta:
         verbose_name = "Клиент"
@@ -22,6 +31,13 @@ class Client(models.Model):
 class Message(models.Model):
     subject = models.CharField(max_length=150, verbose_name='Заголовок сообщения', help_text='Введите заголовок')
     body = models.TextField(verbose_name='Содержание сообщения', help_text='Введите текст сообщения')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='author_message',
+        verbose_name="Автор",
+        **NULLABLE,
+    )
 
     class Meta:
         verbose_name = "Сообщение"
@@ -47,11 +63,19 @@ class Mailing(models.Model):
     ]
 
     clients = models.ManyToManyField(Client, related_name='mailings', verbose_name='Клиенты')
-    message = models.ForeignKey(Message, related_name='mailings', verbose_name='Сообщение', on_delete=models.SET_NULL,
+    message = models.ForeignKey(Message, verbose_name='Сообщение', on_delete=models.SET_NULL,
                                 **NULLABLE)
     start_datetime = models.DateTimeField(default=timezone.now, verbose_name='Дата и время отправки рассылки')
     periodicity = models.CharField(max_length=10, choices=PERIOD_CHOICES, default='once', verbose_name='Периодичность')
     status = models.CharField(max_length=10, choices=STATUS_CHOICES, default='created', verbose_name='Статус')
+    is_active = models.BooleanField(default=True, verbose_name='Активность рассылки')
+    author = models.ForeignKey(
+        User,
+        on_delete=models.CASCADE,
+        related_name='author_mailings',
+        verbose_name="Автор",
+        **NULLABLE,
+    )
 
     class Meta:
         verbose_name = "Рассылка"
@@ -60,7 +84,7 @@ class Mailing(models.Model):
 
     def __str__(self):
         return (f"Рассылка сообщения '{self.message}' с периодичностью '{self.get_periodicity_display()}'"
-                f" и статусом '{self.get_status_display()}'")
+            f" и статусом '{self.get_status_display()}', автор: {self.author}")
 
 
 class MailingAttempt(models.Model):

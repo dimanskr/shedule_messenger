@@ -6,13 +6,13 @@ from mailing.models import Client, Message, Mailing
 class ClientForm(forms.ModelForm):
     class Meta:
         model = Client
-        fields = "__all__"
+        exclude = ('author',)
 
 
 class MessageForm(forms.ModelForm):
     class Meta:
         model = Message
-        fields = "__all__"
+        exclude = ('author',)
 
     prohibited_words_list = []  # список запрещенных слов заполним позже (при необходимости)
 
@@ -35,6 +35,14 @@ class MessageForm(forms.ModelForm):
         return cleaned_data
 
 
+# class CustomModelMultipleChoiceField(forms.ModelMultipleChoiceField):
+#     """
+#     Кастомная модель множественного выбора
+#     """
+#     def label_from_instance(self, clients):
+#         return "%s" % clients.email
+
+
 class MailingForm(forms.ModelForm):
 
     class Meta:
@@ -42,8 +50,22 @@ class MailingForm(forms.ModelForm):
         fields = ('clients', 'message', 'start_datetime', 'periodicity',)
 
         widgets = {
+            'clients': forms.CheckboxSelectMultiple(),
             'start_datetime': forms.DateTimeInput(attrs={'type': 'datetime-local', 'class': 'form-control'}),
         }
+
+    def __init__(self, *args, **kwargs):
+        """
+        Получаем доступ к queryset для фильтрации рассылки
+        """
+        curr_user = kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)
+        if curr_user:
+            self.fields['clients'].queryset = Client.objects.filter(author=curr_user)
+            self.fields['message'].queryset = Message.objects.filter(author=curr_user)
+        else:
+            self.fields['clients'].queryset = Client.objects.objects.none()
+            self.fields['message'].queryset = Message.objects.objects.none()
 
     def save(self, commit=True):
         # Устанавливаем статус "Создана" при каждом изменении рассылки
@@ -51,4 +73,5 @@ class MailingForm(forms.ModelForm):
         mailing.status = 'created'
         if commit:
             mailing.save()
+            self.save_m2m()
         return mailing

@@ -4,6 +4,7 @@ from config.settings import OBJECTS_ON_PAGE_COUNT
 from mailing.forms import ClientForm, MessageForm, MailingForm
 from mailing.models import Client, Message, Mailing, MailingAttempt
 from django.urls import reverse_lazy
+from django.contrib.auth.mixins import LoginRequiredMixin
 
 
 class ClientListView(ListView):
@@ -11,22 +12,35 @@ class ClientListView(ListView):
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "client_list"
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
 
-class ClientDetailView(DetailView):
+        if user.is_authenticated:
+            return queryset.filter(author=user)
+
+        return queryset.none()
+
+
+class ClientDetailView(LoginRequiredMixin, DetailView):
     model = Client
 
 
-class ClientCreateView(CreateView):
+class ClientCreateView(LoginRequiredMixin, CreateView):
     model = Client
     form_class = ClientForm
     success_url = reverse_lazy('mailing:client_list')
 
     def form_valid(self, form):
-        messages.success(self.request, 'Клиент успешно изменен!')
+        client = form.save()
+        user = self.request.user
+        client.author = user
+        client.save()
+        messages.success(self.request, 'Клиент успешно создан!')
         return super().form_valid(form)
 
 
-class ClientUpdateView(UpdateView):
+class ClientUpdateView(LoginRequiredMixin, UpdateView):
     model = Client
     form_class = ClientForm
     success_url = reverse_lazy('mailing:client_list')
@@ -36,7 +50,7 @@ class ClientUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class ClientDeleteView(DeleteView):
+class ClientDeleteView(LoginRequiredMixin, DeleteView):
     model = Client
     success_url = reverse_lazy('mailing:client_list')
 
@@ -50,18 +64,31 @@ class MessageListView(ListView):
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "message_list"
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
 
-class MessageCreateView(CreateView):
+        if user.is_authenticated:
+            return queryset.filter(author=user)
+
+        return queryset.none()
+
+
+class MessageCreateView(LoginRequiredMixin, CreateView):
     model = Message
     form_class = MessageForm
     success_url = reverse_lazy('mailing:message_list')
 
     def form_valid(self, form):
+        message = form.save()
+        user = self.request.user
+        message.author = user
+        message.save()
         messages.success(self.request, 'Сообщение создано!')
         return super().form_valid(form)
 
 
-class MessageUpdateView(UpdateView):
+class MessageUpdateView(LoginRequiredMixin, UpdateView):
     model = Message
     form_class = MessageForm
     success_url = reverse_lazy('mailing:message_list')
@@ -71,7 +98,7 @@ class MessageUpdateView(UpdateView):
         return super().form_valid(form)
 
 
-class MessageDeleteView(DeleteView):
+class MessageDeleteView(LoginRequiredMixin, DeleteView):
     model = Message
     success_url = reverse_lazy('mailing:message_list')
 
@@ -85,22 +112,56 @@ class MailingListView(ListView):
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "mailing_list"
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
 
-class MailingDetailView(DetailView):
+        if user.is_authenticated:
+            return queryset.filter(author=user)
+
+        return queryset.none()
+
+
+class MailingDetailView(LoginRequiredMixin, DetailView):
     model = Mailing
 
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
 
-class MailingCreateView(CreateView):
+        if user.is_authenticated:
+            return queryset.filter(author=user)
+
+        return queryset.none()
+
+
+class MailingCreateView(LoginRequiredMixin, CreateView):
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
 
     def form_valid(self, form):
+        mailing = form.save()
+        user = self.request.user
+        mailing.author = user
+        mailing.save()
         messages.success(self.request, 'Рассылка создана!')
         return super().form_valid(form)
 
+        # Привязка выбранных клиентов после сохранения формы
+        clients_ids = self.request.POST.getlist("clients")
+        form.instance.clients.set(clients_ids)
 
-class MailingUpdateView(UpdateView):
+    def get_form_kwargs(self):
+        """
+        Получаем доступ к queryset для фильтрации данных выводимых в форму рассылки
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
+
+
+class MailingUpdateView(LoginRequiredMixin, UpdateView):
     model = Mailing
     form_class = MailingForm
     success_url = reverse_lazy('mailing:mailing_list')
@@ -109,8 +170,16 @@ class MailingUpdateView(UpdateView):
         messages.success(self.request, 'Рассылка успешно изменена!')
         return super().form_valid(form)
 
+    def get_form_kwargs(self):
+        """
+        Получаем доступ к queryset для фильтрации данных выводимых в форму рассылки
+        """
+        kwargs = super().get_form_kwargs()
+        kwargs["user"] = self.request.user
+        return kwargs
 
-class MailingDeleteView(DeleteView):
+
+class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
     success_url = reverse_lazy('mailing:mailing_list')
 
@@ -123,3 +192,12 @@ class MailingAttemptListView(ListView):
     model = MailingAttempt
     paginate_by = OBJECTS_ON_PAGE_COUNT * 2
     context_object_name = "attempt_list"
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+
+        if user.is_authenticated:
+            return queryset.filter(mailing__author=user)
+
+        return queryset.none()

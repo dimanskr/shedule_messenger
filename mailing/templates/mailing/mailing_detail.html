@@ -3,17 +3,17 @@
 <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
     <h1 class="display-4">Данные о рассылке</h1>
 </div>
-<nav aria-label="breadcrumb">
-    <ol class="breadcrumb text-bold">
-        <li class="breadcrumb-item" aria-current="page">
-            <a href="{% url 'mailing:mailing_list' %}" class="btn btn-sm btn-outline-secondary">
-                К списку рассылок
-            </a>
-        </li>
-    </ol>
-</nav>
-<div class="row mb-2">
-    <div class="col-4">
+<div class="row mb-2 d-flex justify-content-center">
+    <div class="col-6">
+        <nav aria-label="breadcrumb">
+            <ol class="breadcrumb text-bold">
+                <li class="breadcrumb-item" aria-current="page">
+                    <a href="{% url 'mailing:mailing_list' %}" class="btn btn-sm btn-outline-secondary">
+                        К списку рассылок
+                    </a>
+                </li>
+            </ol>
+        </nav>
         <div class="card mb-4 box-shadow">
             <div class="card-header">
                 <h4 class="my-0 font-weight-normal">Тема рассылки: {{ mailing.message.subject }}</h4>
@@ -26,9 +26,9 @@
                 <p class="text-start">Список клиентов:</p>
                 <ul class="list-group list-group-flush">
                     {% for client_data in mailing.clients.all %}
-                        <li class="list-group-item">
-                            <p class="text-start">Клиент: {{ client_data.full_name }}, Email: {{ client_data.email }}</p>
-                        </li>
+                    <li class="list-group-item">
+                        <p class="text-start">Клиент: {{ client_data.full_name }}, Email: {{ client_data.email }}</p>
+                    </li>
                     {% endfor %}
                 </ul>
                 <div class="btn-group">

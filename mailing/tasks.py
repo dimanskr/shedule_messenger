@@ -14,7 +14,8 @@ def send_mailings():
 
     mailings = Mailing.objects.filter(
         start_datetime__lte=current_datetime,
-        status__in=['created', 'started']
+        status__in=['created', 'started'],
+        is_active=True
     )
 
     for mailing in mailings:
