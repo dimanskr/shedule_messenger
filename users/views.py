@@ -10,7 +10,7 @@ from django.contrib import messages
 from django.contrib.auth.mixins import LoginRequiredMixin
 from config.settings import EMAIL_HOST_USER
 import secrets
-from users.utils import generate_random_password
+from users.services import generate_random_password
 
 
 class UserCreateView(CreateView):

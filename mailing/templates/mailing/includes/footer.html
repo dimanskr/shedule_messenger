@@ -7,10 +7,12 @@
     <div class="col-6 col-md">
         <h5>О нас</h5>
         <ul class="list-unstyled text-small">
+            {% if user.is_authenticated %}
             <li><a class="text-muted" href="{% url 'mailing:client_list'%}">Список клиентов</a></li>
             <li><a class="text-muted" href="{% url 'mailing:message_list'%}">Список сообщений</a></li>
             <li><a class="text-muted" href="{% url 'mailing:mailing_list'%}">Список рассылок</a></li>
             <li><a class="text-muted" href="{% url 'mailing:mailing_attempt_list'%}">Лог рассылок</a></li>
+            {% endif %}
         </ul>
     </div>
 </div>
