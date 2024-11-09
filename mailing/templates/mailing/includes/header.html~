@@ -8,11 +8,11 @@
         <nav class="ms-5">
             <a class="p-2 btn btn-outline-primary" href="{% url 'homepage:home' %}">Главная</a>
             {% if user.is_superuser or user.is_authenticated and not perms.mailing.can_watch_mailing %}
-                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:client_list' %}">Клиенты</a>
-                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:message_list' %}">Сообщения</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:client_list' %}">Список клиентов</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:message_list' %}">Список сообщений</a>
             {% endif %}
             {% if user.is_authenticated %}
-                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list' %}">Рассылки</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list' %}">Список рассылок</a>
                 <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_attempt_list' %}">Лог рассылок</a>
             {% endif %}
             {% if perms.users.view_user %}
