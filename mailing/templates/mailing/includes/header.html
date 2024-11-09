@@ -1,28 +1,35 @@
 <header class="d-flex flex-wrap align-items-center justify-content-md-between py-3 mb-4 border-bottom">
     <div class="col-md-3 mb-2 mb-md-0 ms-2">
-        <h5 class="my-0 mr-md-auto font-weight-normal">Shedule messenger</h5>
+        <a href="{% url 'homepage:home' %}" class="text-dark text-decoration-none">
+            <h5 class="my-0 mr-md-auto font-weight-normal">Shedule messenger</h5>
+        </a>
     </div>
     <div class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         <nav class="ms-5">
+            {% if user.is_superuser or user.is_authenticated and not perms.mailing.can_watch_mailing %}
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:client_list' %}">Список клиентов</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:message_list' %}">Список сообщений</a>
+            {% endif %}
             {% if user.is_authenticated %}
-            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:client_list'%}">Список клиентов</a>
-            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:message_list'%}">Список сообщений</a>
-            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list'%}">Список рассылок</a>
-            <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_attempt_list'%}">Лог рассылок</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_list' %}">Список рассылок</a>
+                <a class="p-2 btn btn-outline-primary" href="{% url 'mailing:mailing_attempt_list' %}">Лог рассылок</a>
+            {% endif %}
+            {% if perms.users.view_user %}
+                <a class="p-2 btn btn-outline-primary" href="{% url 'users:user_list' %}">Пользователи сервиса</a>
             {% endif %}
         </nav>
     </div>
     <div class="nav col-12 col-md-auto mb-2 justify-content-center mb-md-0">
         {% if user.is_authenticated %}
-        <span class="me-3"><b>{{ user.email }}</b></span>
-        <a class="btn btn-outline-primary me-2" href="{% url 'users:profile' %}">Профиль</a>
-        <form method="post" action="{% url 'users:logout' %}">
-            {% csrf_token %}
-            <button class="btn btn-outline-primary me-2" type="submit">Выход</button>
-        </form>
+            <span class="me-3"><b>{{ user.email }}</b></span>
+            <a class="btn btn-outline-primary me-2" href="{% url 'users:profile' %}">Профиль</a>
+            <form method="post" action="{% url 'users:logout' %}">
+                {% csrf_token %}
+                <button class="btn btn-outline-primary me-2" type="submit">Выход</button>
+            </form>
         {% else %}
-        <a class="btn btn-outline-primary me-2" href="{% url 'users:login' %}">Вход</a>
-        <a class="btn btn-outline-primary me-2" href="{% url 'users:register' %}">Регистрация</a>
+            <a class="btn btn-outline-primary me-2" href="{% url 'users:login' %}">Вход</a>
+            <a class="btn btn-outline-primary me-2" href="{% url 'users:register' %}">Регистрация</a>
         {% endif %}
     </div>
 </header>

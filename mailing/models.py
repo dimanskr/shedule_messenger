@@ -81,6 +81,10 @@ class Mailing(models.Model):
         verbose_name = "Рассылка"
         verbose_name_plural = "Рассылки"
         ordering = ("-start_datetime",)
+        permissions = [
+            ("can_deactivate_mailing", "can deactivate mailing"),
+            ("can_watch_mailing", "can watch mailing"),
+        ]
 
     def __str__(self):
         return (f"Рассылка сообщения '{self.message}' с периодичностью '{self.get_periodicity_display()}'"
@@ -99,6 +103,9 @@ class MailingAttempt(models.Model):
         verbose_name = "Попытка рассылки"
         verbose_name_plural = "Попытки рассылок"
         ordering = ("-last_attempt", "status")
+        permissions = [
+            ("can_watch_attempts", "can watch attempts"),
+        ]
 
     def __str__(self):
         return (f"Попытка рассылки: {self.mailing}, дата и время рассылки: {self.last_attempt}, "

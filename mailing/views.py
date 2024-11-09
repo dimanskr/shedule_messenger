@@ -1,13 +1,15 @@
 from django.views.generic import ListView, DetailView, CreateView, UpdateView, DeleteView
 from django.contrib import messages
 from config.settings import OBJECTS_ON_PAGE_COUNT
-from mailing.forms import ClientForm, MessageForm, MailingForm
+from mailing.forms import ClientForm, MessageForm, MailingForm, ManagerMailingForm
 from mailing.models import Client, Message, Mailing, MailingAttempt
 from django.urls import reverse_lazy
 from django.contrib.auth.mixins import LoginRequiredMixin
+from django.core.exceptions import PermissionDenied
 
 
-class ClientListView(ListView):
+
+class ClientListView(LoginRequiredMixin, ListView):
     model = Client
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "client_list"
@@ -24,6 +26,15 @@ class ClientListView(ListView):
 
 class ClientDetailView(LoginRequiredMixin, DetailView):
     model = Client
+
+    def get_queryset(self, *args, **kwargs):
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+
+        if user.is_authenticated:
+            return queryset.filter(author=user)
+
+        return queryset.none()
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -59,7 +70,7 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
         return super().form_valid(form)
 
 
-class MessageListView(ListView):
+class MessageListView(LoginRequiredMixin, ListView):
     model = Message
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "message_list"
@@ -107,7 +118,7 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
         return super().form_valid(form)
 
 
-class MailingListView(ListView):
+class MailingListView(LoginRequiredMixin, ListView):
     model = Mailing
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "mailing_list"
@@ -115,6 +126,10 @@ class MailingListView(ListView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         user = self.request.user
+
+        # менеджер видит все рассылки
+        if user.has_perm('mailing.can_watch_mailing'):
+            return queryset
 
         if user.is_authenticated:
             return queryset.filter(author=user)
@@ -128,6 +143,10 @@ class MailingDetailView(LoginRequiredMixin, DetailView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         user = self.request.user
+
+        # менеджер видит все рассылки
+        if user.has_perm('mailing.can_watch_mailing'):
+            return queryset
 
         if user.is_authenticated:
             return queryset.filter(author=user)
@@ -149,8 +168,8 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
         return super().form_valid(form)
 
         # Привязка выбранных клиентов после сохранения формы
-        clients_ids = self.request.POST.getlist("clients")
-        form.instance.clients.set(clients_ids)
+        selected_clients = self.request.POST.getlist("clients")
+        form.instance.clients.set(selected_clients)
 
     def get_form_kwargs(self):
         """
@@ -178,6 +197,14 @@ class MailingUpdateView(LoginRequiredMixin, UpdateView):
         kwargs["user"] = self.request.user
         return kwargs
 
+    def get_form_class(self):
+        current_user = self.request.user
+        if current_user == self.object.author:
+            return MailingForm
+        if current_user.has_perm('mailing.can_deactivate_mailing'):
+            return ManagerMailingForm
+        raise PermissionDenied
+
 
 class MailingDeleteView(LoginRequiredMixin, DeleteView):
     model = Mailing
@@ -187,8 +214,17 @@ class MailingDeleteView(LoginRequiredMixin, DeleteView):
         messages.success(self.request, 'Рассылка удалена!')
         return super().form_valid(form)
 
+    def dispatch(self, request, *args, **kwargs):
+        mailing = self.get_object()
+        if (
+            mailing.author == request.user
+            or request.user.is_superuser
+        ):
+            return super().dispatch(request, *args, **kwargs)
+        raise PermissionDenied("У Вас нет прав на удаление рассылки.")
 
-class MailingAttemptListView(ListView):
+
+class MailingAttemptListView(LoginRequiredMixin, ListView):
     model = MailingAttempt
     paginate_by = OBJECTS_ON_PAGE_COUNT * 2
     context_object_name = "attempt_list"
@@ -196,6 +232,10 @@ class MailingAttemptListView(ListView):
     def get_queryset(self, *args, **kwargs):
         queryset = super().get_queryset(*args, **kwargs)
         user = self.request.user
+
+        # менеджер видит все рассылки
+        if user.has_perm('mailing.can_watch_attempts'):
+            return queryset
 
         if user.is_authenticated:
             return queryset.filter(mailing__author=user)
