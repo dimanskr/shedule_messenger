@@ -155,7 +155,10 @@ DEFAULT_FROM_EMAIL = EMAIL_HOST_USER
 SERVER_EMAIL = EMAIL_HOST_USER
 EMAIL_ADMIN = EMAIL_HOST_USER
 
-OBJECTS_ON_PAGE_COUNT = int(os.getenv('OBJECTS_ON_PAGE_COUNT'))
+try:
+    OBJECTS_ON_PAGE_COUNT = int(os.getenv('OBJECTS_ON_PAGE_COUNT'))
+except ValueError:
+    OBJECTS_ON_PAGE_COUNT = 12
 
 CACHE_ENABLED = os.getenv('CACHE_ENABLED', True) == 'True'
 
@@ -166,9 +169,12 @@ if CACHE_ENABLED is True:
             'LOCATION': os.getenv('CACHE_LOCATION')
         }
     }
-    HOME_PAGE_CACHE_TIME = int(os.getenv('HOME_PAGE_CACHE_TIME'))
-    ARTICLE_PAGE_CACHE_TIME = int(os.getenv('ARTICLE_PAGE_CACHE_TIME'))
+    try:
+        HOME_PAGE_CACHE_TIME = int(os.getenv('HOME_PAGE_CACHE_TIME'))
+        ARTICLE_PAGE_CACHE_TIME = int(os.getenv('ARTICLE_PAGE_CACHE_TIME'))
+    except ValueError:
+        HOME_PAGE_CACHE_TIME = 60
+        ARTICLE_PAGE_CACHE_TIME = 3600
 else:
     HOME_PAGE_CACHE_TIME = 0
     ARTICLE_PAGE_CACHE_TIME = 0
-

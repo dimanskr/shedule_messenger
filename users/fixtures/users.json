@@ -1,0 +1,23 @@
+[
+  {
+    "model": "users.user",
+    "pk": 16,
+    "fields": {
+      "password": "",
+      "last_login": null,
+      "is_superuser": false,
+      "first_name": "Пользователь",
+      "last_name": "Тестовый",
+      "is_staff": false,
+      "is_active": true,
+      "date_joined": "2024-11-09T13:45:32Z",
+      "email": "testuser@mail.ru",
+      "phone": "+79998888888",
+      "avatar": "",
+      "country": "Россия",
+      "token": null,
+      "groups": [],
+      "user_permissions": []
+    }
+  }
+]

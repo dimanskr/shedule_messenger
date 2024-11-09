@@ -1,0 +1,117 @@
+[
+  {
+    "model": "mailing.client",
+    "pk": 1,
+    "fields": {
+      "email": "testuser2@mail.ru",
+      "full_name": "Тестовый клиент",
+      "comment": "",
+      "author": 16
+    }
+  },
+  {
+    "model": "mailing.client",
+    "pk": 1,
+    "fields": {
+      "email": "testuser2@mail.ru",
+      "full_name": "Тестовый клиент",
+      "comment": "",
+      "author": 16
+    }
+  },
+  {
+    "model": "mailing.message",
+    "pk": 1,
+    "fields": {
+      "subject": "Сообщение testuser",
+      "body": "Сообщение пользователя testuser",
+      "author": 16
+    }
+  },
+  {
+    "model": "mailing.message",
+    "pk": 1,
+    "fields": {
+      "subject": "Сообщение 2 testuser",
+      "body": "Сообщение 2 пользователя testuser",
+      "author": 16
+    }
+  },
+  {
+    "model": "mailing.mailing",
+    "pk": 1,
+    "fields": {
+      "message": 1,
+      "start_datetime": "2024-11-09T13:53:58Z",
+      "periodicity": "once",
+      "status": "completed",
+      "is_active": true,
+      "author": 16,
+      "clients": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "mailing.mailing",
+    "pk": 2,
+    "fields": {
+      "message": 2,
+      "start_datetime": "2024-11-16T13:57:00.338Z",
+      "periodicity": "weekly",
+      "status": "started",
+      "is_active": true,
+      "author": 16,
+      "clients": [
+        1,
+        2
+      ]
+    }
+  },
+  {
+    "model": "mailing.mailing",
+    "pk": 3,
+    "fields": {
+      "message": 2,
+      "start_datetime": "2024-12-09T17:35:00.502Z",
+      "periodicity": "monthly",
+      "status": "started",
+      "is_active": true,
+      "author": 16,
+      "clients": [
+        9
+      ]
+    }
+  },
+  {
+    "model": "mailing.mailingattempt",
+    "pk": 1,
+    "fields": {
+      "mailing": 1,
+      "last_attempt": "2024-11-09T13:56:01.179Z",
+      "status": "success",
+      "server_response": "Сообщение успешно отправлено"
+    }
+  },
+  {
+    "model": "mailing.mailingattempt",
+    "pk": 2,
+    "fields": {
+      "mailing": 2,
+      "last_attempt": "2024-11-09T13:57:01.068Z",
+      "status": "success",
+      "server_response": "Сообщение успешно отправлено"
+    }
+  },
+  {
+    "model": "mailing.mailingattempt",
+    "pk": 3,
+    "fields": {
+      "mailing": 3,
+      "last_attempt": "2024-11-09T17:35:03.527Z",
+      "status": "success",
+      "server_response": "Сообщение успешно отправлено"
+    }
+  }
+]

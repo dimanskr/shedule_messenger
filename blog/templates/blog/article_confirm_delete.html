@@ -1,0 +1,13 @@
+{% extends 'mailing/base.html' %}
+{% block content %}
+<div class="position-relative w-100 vh-100">
+    <form method="post" class="position-absolute top-50 start-50 translate-middle ">
+        {% csrf_token %}
+        <p>Вы действительно хотите удалить статью <b>{{ object.title }}</b>?</p>
+        <div class="btn-group justify-content-center w-100" role="group">
+            <a href="{% url 'blog:article_detail' object.slug %}" class="btn btn-success">Отмена</a>
+            <button class="btn btn-danger" type="submit">Удалить</button>
+        </div>
+    </form>
+</div>
+{% endblock %}

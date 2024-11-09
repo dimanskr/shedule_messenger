@@ -18,7 +18,7 @@
 
         <div class="col">
             <div class="card card-hover card-active mb-4 rounded-3 border-primary">
-                <div class="card-header py-3 text-bg-primary border-primary">
+                <div class="card-header py-3 text-bg-success border-primary">
                     <h4 class="my-0 fw-normal">Количество активных рассылок</h4>
                 </div>
                 <div class="card-body text-bg-light rounded-3">
@@ -29,7 +29,7 @@
 
         <div class="col">
             <div class="card card-hover card-active mb-4 rounded-3 border-info">
-                <div class="card-header py-3 text-bg-info border-info">
+                <div class="card-header py-3 text-bg-success border-info">
                     <h4 class="my-0 fw-normal">Количество уникальных клиентов</h4>
                 </div>
                 <div class="card-body text-bg-light rounded-3">
