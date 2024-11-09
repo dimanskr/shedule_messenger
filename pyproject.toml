@@ -15,6 +15,7 @@ pillow = "^11.0.0"
 django-phonenumber-field = "^8.0.0"
 phonenumbers = "^8.13.47"
 pytils = "^0.4.1"
+redis = "^5.2.0"
 
 
 [tool.poetry.group.dev.dependencies]

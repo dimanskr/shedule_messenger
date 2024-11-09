@@ -8,33 +8,40 @@ from django.contrib.auth.mixins import LoginRequiredMixin
 from django.core.exceptions import PermissionDenied
 
 
+class PermissionFilteredQuerysetMixin(LoginRequiredMixin):
+    """
+    Миксин для get_queryset на основе разрешений пользователя
+    """
+    permission_name = None
+    filter_field = 'author'
 
-class ClientListView(LoginRequiredMixin, ListView):
+    def get_queryset(self, *args, **kwargs):
+        """
+        Возвращает набор запросов на основе наличия у пользователя указанного разрешения
+        """
+        queryset = super().get_queryset(*args, **kwargs)
+        user = self.request.user
+
+        # Разрешить доступ ко всем объектам, если у пользователя есть необходимое разрешение
+        if self.permission_name and user.has_perm(self.permission_name):
+            return queryset
+
+        # В противном случае отфильтруйте набор запросов по указанному полю и текущему пользователю
+        if user.is_authenticated:
+            filter_kwargs = {self.filter_field: user}
+            return queryset.filter(**filter_kwargs)
+
+        return queryset.none()
+
+
+class ClientListView(PermissionFilteredQuerysetMixin, ListView):
     model = Client
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "client_list"
 
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        user = self.request.user
 
-        if user.is_authenticated:
-            return queryset.filter(author=user)
-
-        return queryset.none()
-
-
-class ClientDetailView(LoginRequiredMixin, DetailView):
+class ClientDetailView(PermissionFilteredQuerysetMixin, DetailView):
     model = Client
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        user = self.request.user
-
-        if user.is_authenticated:
-            return queryset.filter(author=user)
-
-        return queryset.none()
 
 
 class ClientCreateView(LoginRequiredMixin, CreateView):
@@ -70,19 +77,10 @@ class ClientDeleteView(LoginRequiredMixin, DeleteView):
         return super().form_valid(form)
 
 
-class MessageListView(LoginRequiredMixin, ListView):
+class MessageListView(PermissionFilteredQuerysetMixin, ListView):
     model = Message
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "message_list"
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        user = self.request.user
-
-        if user.is_authenticated:
-            return queryset.filter(author=user)
-
-        return queryset.none()
 
 
 class MessageCreateView(LoginRequiredMixin, CreateView):
@@ -118,40 +116,16 @@ class MessageDeleteView(LoginRequiredMixin, DeleteView):
         return super().form_valid(form)
 
 
-class MailingListView(LoginRequiredMixin, ListView):
+class MailingListView(PermissionFilteredQuerysetMixin, ListView):
     model = Mailing
     paginate_by = OBJECTS_ON_PAGE_COUNT
     context_object_name = "mailing_list"
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        user = self.request.user
-
-        # менеджер видит все рассылки
-        if user.has_perm('mailing.can_watch_mailing'):
-            return queryset
-
-        if user.is_authenticated:
-            return queryset.filter(author=user)
-
-        return queryset.none()
+    permission_name = 'mailing.can_watch_mailing'
 
 
-class MailingDetailView(LoginRequiredMixin, DetailView):
+class MailingDetailView(PermissionFilteredQuerysetMixin, DetailView):
     model = Mailing
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        user = self.request.user
-
-        # менеджер видит все рассылки
-        if user.has_perm('mailing.can_watch_mailing'):
-            return queryset
-
-        if user.is_authenticated:
-            return queryset.filter(author=user)
-
-        return queryset.none()
+    permission_name = 'mailing.can_watch_mailing'
 
 
 class MailingCreateView(LoginRequiredMixin, CreateView):
@@ -217,27 +191,16 @@ class MailingDeleteView(LoginRequiredMixin, DeleteView):
     def dispatch(self, request, *args, **kwargs):
         mailing = self.get_object()
         if (
-            mailing.author == request.user
-            or request.user.is_superuser
+                mailing.author == request.user
+                or request.user.is_superuser
         ):
             return super().dispatch(request, *args, **kwargs)
         raise PermissionDenied("У Вас нет прав на удаление рассылки.")
 
 
-class MailingAttemptListView(LoginRequiredMixin, ListView):
+class MailingAttemptListView(PermissionFilteredQuerysetMixin, ListView):
     model = MailingAttempt
     paginate_by = OBJECTS_ON_PAGE_COUNT * 2
     context_object_name = "attempt_list"
-
-    def get_queryset(self, *args, **kwargs):
-        queryset = super().get_queryset(*args, **kwargs)
-        user = self.request.user
-
-        # менеджер видит все рассылки
-        if user.has_perm('mailing.can_watch_attempts'):
-            return queryset
-
-        if user.is_authenticated:
-            return queryset.filter(mailing__author=user)
-
-        return queryset.none()
+    permission_name = 'mailing.can_watch_attempts'
+    filter_field = 'mailing__author'

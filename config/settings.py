@@ -154,3 +154,18 @@ EMAIL_ADMIN = EMAIL_HOST_USER
 
 OBJECTS_ON_PAGE_COUNT = 12
 
+CACHE_ENABLED = True
+
+if CACHE_ENABLED is True:
+    CACHES = {
+        'default': {
+            'BACKEND': 'django.core.cache.backends.redis.RedisCache',
+            'LOCATION': 'redis://127.0.0.1:6379'
+        }
+    }
+    HOME_PAGE_CACHE_TIME = 60
+    ARTICLE_PAGE_CACHE_TIME = 60 + 60
+else:
+    HOME_PAGE_CACHE_TIME = 0
+    ARTICLE_PAGE_CACHE_TIME = 0
+
