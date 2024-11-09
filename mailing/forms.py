@@ -75,3 +75,17 @@ class MailingForm(forms.ModelForm):
             mailing.save()
             self.save_m2m()
         return mailing
+
+
+class ManagerMailingForm(forms.ModelForm):
+    class Meta:
+        model = Mailing
+        fields = ('is_active', )
+
+        widgets = {
+            "is_active": forms.CheckboxInput(attrs={"class": "form-check-input"}),
+        }
+
+    def __init__(self, *args, **kwargs):
+        kwargs.pop("user", None)
+        super().__init__(*args, **kwargs)

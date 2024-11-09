@@ -1,44 +1,60 @@
 {% extends 'mailing/base.html' %}
 {% block content %}
-<div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
-    <h1 class="display-4">Данные о рассылке</h1>
-</div>
-<div class="row mb-2 d-flex justify-content-center">
-    <div class="col-6">
-        <nav aria-label="breadcrumb">
-            <ol class="breadcrumb text-bold">
-                <li class="breadcrumb-item" aria-current="page">
-                    <a href="{% url 'mailing:mailing_list' %}" class="btn btn-sm btn-outline-secondary">
-                        К списку рассылок
-                    </a>
-                </li>
-            </ol>
-        </nav>
-        <div class="card mb-4 box-shadow">
-            <div class="card-header">
-                <h4 class="my-0 font-weight-normal">Тема рассылки: {{ mailing.message.subject }}</h4>
-            </div>
-            <div class="card-body">
-                <p class="text-start">Текст рассылки: {{ mailing.message.body }}</p>
-                <p class="text-start">Дата и время отправки: {{ mailing.start_datetime | date:"d.m.Y H:i"}}</p>
-                <p class="text-start">Периодичность рассылки: {{ mailing.get_periodicity_display}}</p>
-                <p class="text-start">Статус рассылки: {{ mailing.get_status_display }}</p>
-                <p class="text-start">Список клиентов:</p>
-                <ul class="list-group list-group-flush">
-                    {% for client_data in mailing.clients.all %}
-                    <li class="list-group-item">
-                        <p class="text-start">Клиент: {{ client_data.full_name }}, Email: {{ client_data.email }}</p>
+    <div class="pricing-header px-3 py-3 pt-md-5 pb-md-4 mx-auto text-center">
+        <h1 class="display-4">Данные о рассылке</h1>
+    </div>
+    <div class="row mb-2 d-flex justify-content-center">
+        <div class="col-6">
+            <nav aria-label="breadcrumb">
+                <ol class="breadcrumb text-bold">
+                    <li class="breadcrumb-item" aria-current="page">
+                        <a href="{% url 'mailing:mailing_list' %}" class="btn btn-sm btn-outline-secondary">
+                            К списку рассылок
+                        </a>
                     </li>
-                    {% endfor %}
-                </ul>
-                <div class="btn-group">
-                    <a class="btn btn-sm btn-outline-secondary" href="{% url 'mailing:mailing_edit' mailing.pk %}"
-                       role="button">Изменить</a>
-                    <a class="btn btn-sm btn-outline-danger" href="{% url 'mailing:mailing_delete' mailing.pk %}"
-                       role="button">Удалить</a>
+                </ol>
+            </nav>
+            <div class="card mb-4 box-shadow">
+                <div class="card-header">
+                    <h4 class="my-0 font-weight-normal">Тема рассылки: {{ mailing.message.subject }}</h4>
+                </div>
+                <div class="card-body">
+                    <p class="text-start">Текст рассылки: {{ mailing.message.body }}</p>
+                    <p class="text-start">Дата и время отправки: {{ mailing.start_datetime | date:"d.m.Y H:i" }}</p>
+                    <p class="text-start">Периодичность рассылки: {{ mailing.get_periodicity_display }}</p>
+                    <p class="text-start">Статус рассылки: {{ mailing.get_status_display }}</p>
+                    {% if perms.mailing.can_watch_mailing or user.is_staff %}
+                        <p class="text-start">Автор рассылки: {{ mailing.author }}</p>
+                    {% endif %}
+                    <p class="text-start">Список клиентов:</p>
+                    <ul class="list-group list-group-flush">
+                        {% for client_data in mailing.clients.all %}
+                            <li class="list-group-item">
+                                <p class="text-start">Клиент: {{ client_data.full_name }},
+                                    Email: {{ client_data.email }}</p>
+                            </li>
+                        {% endfor %}
+                    </ul>
+                    <div class="btn-group">
+                        <a class="btn btn-sm btn-outline-secondary" href="{% url 'mailing:mailing_edit' mailing.pk %}"
+                           role="button">Изменить</a>
+                        {% if user.is_superuser or user.is_authenticated and not perms.mailing.can_watch_mailing %}
+                            <a class="btn btn-sm btn-outline-danger"
+                               href="{% url 'mailing:mailing_delete' mailing.pk %}"
+                               role="button">Удалить</a>
+                        {% endif %}
+                    </div>
+                    <div class="m-4 btn-group" role="group">
+                        {% if perms.mailing.can_watch_mailing or user.is_staff %}
+                            {% if mailing.is_active %}
+                                <span class="badge bg-success">Активна</span>
+                            {% elif not mailing.is_active %}
+                                <span class="badge bg-danger">Заблокирована</span>
+                            {% endif %}
+                        {% endif %}
+                    </div>
                 </div>
             </div>
         </div>
     </div>
-</div>
 {% endblock %}
