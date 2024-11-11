@@ -134,16 +134,12 @@ class MailingCreateView(LoginRequiredMixin, CreateView):
     success_url = reverse_lazy('mailing:mailing_list')
 
     def form_valid(self, form):
-        mailing = form.save()
-        user = self.request.user
-        mailing.author = user
+        mailing = form.save(commit=False)
+        mailing.author = self.request.user
         mailing.save()
+        form.instance.clients.set(self.request.POST.getlist("clients"))
         messages.success(self.request, 'Рассылка создана!')
         return super().form_valid(form)
-
-        # Привязка выбранных клиентов после сохранения формы
-        selected_clients = self.request.POST.getlist("clients")
-        form.instance.clients.set(selected_clients)
 
     def get_form_kwargs(self):
         """
